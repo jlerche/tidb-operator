@@ -117,6 +117,8 @@ In our next step, we will be deploying infrastructure based on the Terraform EKS
 
 ## About starting AWS EKS with Terraform
 
+If instead of going through each step manually, you would rather run a script that stands up all the necessary infrastructure, [go to this section](#all-in-one-terraform-script).
+
 Steps to provision AWS EKS:
 
 1. Provision an EKS cluster with IAM roles, Security Groups and VPC
@@ -491,3 +493,11 @@ terraform destroy
 ```
 
 (Do this command at the end to clean up, you don't have to don't do it now!)
+
+---
+
+# All in one Terraform script
+
+Instead of performing several steps in sequence, there is a comprehensive Terraform script that will automate all the steps.
+
+Follow the instructions listed in `./deploy/aws/README.md`.
