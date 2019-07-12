@@ -44,7 +44,7 @@ spec:
           value: {{ .Values.name | quote }}
       {{- if .Values.gcp }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /gcp/credentials.json
+          value: /gcp/key.json
       {{- end }}
       {{- if or .Values.ceph .Values.s3 }}
         - name: AWS_ACCESS_KEY_ID
