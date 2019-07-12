@@ -62,7 +62,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ .Values.secretName }}
-              key: user
+              key: username
         - name: TIDB_PASSWORD
           valueFrom:
             secretKeyRef:
