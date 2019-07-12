@@ -1,6 +1,6 @@
 set -euo pipefail
 
-host=$(getent hosts {{ .Values.clusterName }}-tidb | head | awk '{print $1}')
+host={{ .Values.host }}
 
 dirname=/data/${BACKUP_NAME}
 echo "making dir ${dirname}"
