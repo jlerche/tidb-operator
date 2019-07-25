@@ -63,3 +63,16 @@ variable "bastion_instance_type" {
   default = "f1-micro"
 }
 
+variable "base_oauth_scopes" {
+  default = ["storage-ro", "monitoring"]
+}
+
+variable "oauth_scopes_with_logging" {
+  default = ["logging-write", "storage-ro", "monitoring"]
+}
+
+variable "use_custom_logging" {
+  description = "If true, does not include logging-write oauth scope"
+  default = false
+}
+

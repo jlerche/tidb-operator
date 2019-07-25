@@ -196,6 +196,19 @@ GCP allows attaching a local SSD to any instance type that is `n1-standard-1` or
 
 Currently, there are not too many parameters exposed to be customized. However, you can modify `templates/tidb-cluster-values.yaml.tpl` before deploying. If you modify it after the cluster is created and then run `terraform apply`, it can not take effect unless the pod(s) is manually deleted.
 
+### Customize logging
+
+By default, the Terraform script will create the cluster and node pools with the [Logs Writer](https://cloud.google.com/logging/docs/access-control) role which grants permission to write logs to Stackdriver. GKE will install [Fluentd](https://www.fluentd.org/) as the collector. While it is easily customizable and extensible, it tends to be resource hungry and not necessarily suitable for a production deployment.
+If you do not wish to use Fluentd as the log collector, or write your logs to Stackdriver, simply set the `use_custom_logging` variable, in `variables.tf` to `true`. If set to `true`, then Fluentd will not be installed.
+
+#### Fluent Bit as a log collector
+
+[Fluent Bit](https://fluentbit.io/) is a log collector written in C designed to be fast and lightweight. It is fully compatible with Docker and Kubernetes and has a pluggable architecture with several extensions.
+The documentation for the Kubernetes configuration is available [here](https://docs.fluentbit.io/manual/filter/kubernetes). 
+A [Github repository](https://github.com/fluent/fluent-bit-kubernetes-logging) is available with Kubernetes resource configuration files as well as examples for how to write logs to popular storage services like Elasticsearch, InfluxDB, etc.
+
+Fluent Bit supports Stackdriver out of the box. The documentation for its configuration can be found [here](https://docs.fluentbit.io/manual/output/stackdriver). 
+
 ### Customize node pools
 
 The cluster is created as a regional, as opposed to a zonal cluster. This means that GKE replicates node pools to each availability zone. This is desired to maintain high availability, however for the monitoring services, like Grafana, this is potentially unnecessary. It is possible to manually remove nodes if desired via `gcloud`.

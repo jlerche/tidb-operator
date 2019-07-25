@@ -99,8 +99,8 @@ resource "google_container_cluster" "cluster" {
     use_ip_aliases = true
   }
 
-  remove_default_node_pool = true
   // see https://github.com/terraform-providers/terraform-provider-google/issues/3385 for why initial_node_count is sum of node counts
+  remove_default_node_pool = true
   initial_node_count       = var.pd_count + var.tikv_count + var.tidb_count + var.monitor_count
 
   min_master_version = "latest"
@@ -146,7 +146,7 @@ resource "google_container_node_pool" "pd_pool" {
     }
 
     tags         = ["pd"]
-    oauth_scopes = ["storage-ro", "logging-write", "monitoring"]
+    oauth_scopes = var.use_custom_logging ? var.base_oauth_scopes : var.oauth_scopes_with_logging
   }
 }
 
@@ -181,7 +181,7 @@ resource "google_container_node_pool" "tikv_pool" {
     }
 
     tags         = ["tikv"]
-    oauth_scopes = ["storage-ro", "logging-write", "monitoring"]
+    oauth_scopes = var.use_custom_logging ? var.base_oauth_scopes : var.oauth_scopes_with_logging
   }
 }
 
@@ -214,7 +214,7 @@ resource "google_container_node_pool" "tidb_pool" {
     }
 
     tags         = ["tidb"]
-    oauth_scopes = ["storage-ro", "logging-write", "monitoring"]
+    oauth_scopes = var.use_custom_logging ? var.base_oauth_scopes : var.oauth_scopes_with_logging
   }
 }
 
@@ -236,7 +236,7 @@ resource "google_container_node_pool" "monitor_pool" {
   node_config {
     machine_type = var.monitor_instance_type
     tags         = ["monitor"]
-    oauth_scopes = ["storage-ro", "logging-write", "monitoring"]
+    oauth_scopes = var.use_custom_logging ? var.base_oauth_scopes : var.oauth_scopes_with_logging
   }
 }
 
