@@ -120,6 +120,18 @@ resource "helm_release" "tidb-cluster" {
     name = "tidb.tolerations[0].effect"
     value = "NoSchedule"
   }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = <<EOS
+kubectl get pvc -n tidb -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
+EOS
+
+
+    environment = {
+      KUBECONFIG = var.kubeconfig_filename
+    }
+  }
 }
 
 resource "null_resource" "wait-tidb-ready" {
