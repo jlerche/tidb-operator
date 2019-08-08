@@ -141,6 +141,7 @@ module "tidb-cluster" {
 resource "null_resource" "wait-lb-ip" {
   depends_on = [
     google_container_node_pool.tidb_pool,
+    module.tidb-cluster.tidb_endpoint
   ]
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
@@ -152,6 +153,19 @@ until kubectl get svc -n ${var.cluster_name} ${var.cluster_name}-tidb -o json | 
   echo "Wait for TiDB internal loadbalancer IP"
   sleep 5
 done
+EOS
+
+    environment = {
+      KUBECONFIG = var.kubeconfig_path
+    }
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    interpreter = ["bash", "-c"]
+    working_dir = path.cwd
+    command     = <<EOS
+kubectl get pvc -n tidb -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
 EOS
 
     environment = {
