@@ -122,7 +122,7 @@ resource "google_container_node_pool" "monitor_pool" {
 }
 
 locals {
-  num_availability_zones = length(data.google_compute_zones.available)
+  num_availability_zones = length(data.google_compute_zones.available.names)
 }
 
 module "tidb-cluster" {
@@ -141,14 +141,20 @@ module "tidb-cluster" {
 resource "null_resource" "wait-lb-ip" {
   depends_on = [
     google_container_node_pool.tidb_pool,
+    var.kubeconfig_path,
+    module.tidb-cluster.tidb_helm_release_namespace,
   ]
+  triggers = {
+    kubepath = var.kubeconfig_path
+    helm_release_namespace = module.tidb-cluster.tidb_helm_release_namespace
+  }
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
     working_dir = path.cwd
     command     = <<EOS
 set -euo pipefail
 
-until kubectl get svc -n ${var.cluster_name} ${var.cluster_name}-tidb -o json | jq '.status.loadBalancer.ingress[0]' | grep ip; do
+until kubectl get svc -n ${module.tidb-cluster.tidb_helm_release_namespace} ${module.tidb-cluster.tidb_helm_release_namespace}-tidb -o json | jq '.status.loadBalancer.ingress[0]' | grep ip; do
   echo "Wait for TiDB internal loadbalancer IP"
   sleep 5
 done
@@ -158,11 +164,12 @@ EOS
       KUBECONFIG = var.kubeconfig_path
     }
   }
+
   provisioner "local-exec" {
     when = destroy
     working_dir = path.cwd
     command = <<EOF
-kubectl --kubeconfig ${var.kubeconfig_path} get pvc -n ${var.cluster_name} -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl --kubeconfig ${var.kubeconfig_path} patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
+kubectl --kubeconfig ${var.kubeconfig_path} get pvc -n ${module.tidb-cluster.tidb_helm_release_namespace} -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl --kubeconfig ${var.kubeconfig_path} patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
 EOF
   }
 }
