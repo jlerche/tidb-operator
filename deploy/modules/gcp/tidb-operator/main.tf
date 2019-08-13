@@ -100,12 +100,13 @@ kubectl apply -f https://raw.githubusercontent.com/pingcap/tidb-operator/${var.t
 kubectl apply -f https://raw.githubusercontent.com/pingcap/tidb-operator/${var.tidb_operator_version}/manifests/tiller-rbac.yaml
 kubectl apply -k manifests/local-ssd
 kubectl apply -f manifests/gke/persistent-disk.yaml
-
+helm repo add pingcap https://charts.pingcap.org/
 helm init --service-account tiller --upgrade --wait
-until helm ls; do
+until helm --kubeconfig ls; do
   echo "Wait until tiller is ready"
   sleep 5
 done
+helm upgrade --install tidb-operator pingcap/tidb-operator --version ${var.tidb_operator_version}
 EOS
 
 
@@ -113,28 +114,9 @@ EOS
       KUBECONFIG = var.kubeconfig_path
     }
   }
-}
 
-data "helm_repository" "pingcap" {
-  provider = "helm.initial"
-  depends_on = [null_resource.setup-env]
-  name = "pingcap"
-  url = "https://charts.pingcap.org/"
-}
-
-resource "helm_release" "tidb-operator" {
-  provider = "helm.initial"
-  depends_on = [
-    null_resource.setup-env,
-    null_resource.get-credentials,
-    data.helm_repository.pingcap,
-  ]
-
-  repository = data.helm_repository.pingcap.name
-  chart = "tidb-operator"
-  version = var.tidb_operator_version
-  namespace = "tidb-admin"
-  name = "tidb-operator"
-  values = [var.operator_helm_values]
-  wait = false
+  provisioner "local-exec" {
+    when = destroy
+    command = "helm --kubeconfig ${var.kubeconfig_path} del --purge tidb-operator"
+  }
 }

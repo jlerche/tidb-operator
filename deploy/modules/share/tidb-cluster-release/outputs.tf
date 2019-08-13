@@ -18,7 +18,3 @@ output "tidb_endpoint" {
 output "monitor_endpoint" {
   value = "${local.monitor_hostname}:${data.external.monitor_port.result["port"]}"
 }
-
-output "tidb_helm_release_namespace" {
-  value = helm_release.tidb-cluster.namespace
-}
