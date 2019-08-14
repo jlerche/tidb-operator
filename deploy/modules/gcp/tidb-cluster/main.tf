@@ -174,7 +174,7 @@ resource "null_resource" "wait-lb-ip" {
     command     = <<EOS
 set -euo pipefail
 
-until kubectl --kubeconfig ${var.kubeconfig_path} get svc -n ${var.cluster_name} ${var.cluster_name}-tidb -o json | jq '.status.loadBalancer.ingress[0]' | grep ip; do
+until kubectl --kubeconfig ${local.kubeconfig_path} get svc -n ${local.cluster_name} ${local.cluster_name}-tidb -o json | jq '.status.loadBalancer.ingress[0]' | grep ip; do
   echo "Wait for TiDB internal loadbalancer IP"
   sleep 5
 done
@@ -189,7 +189,7 @@ EOS
     command = <<EOS
 set -x
 if KUBECONFIG=${local.kubeconfig_path} helm ls ${local.cluster_name} ; then
-  kubectl ${local.kubeconfig_path} get pvc -n ${local.cluster_name} -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl --kubeconfig ${local.kubeconfig_path} patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
+  kubectl --kubeconfig ${local.kubeconfig_path} get pvc -n ${local.cluster_name} -o jsonpath='{.items[*].spec.volumeName}'|fmt -1 | xargs -I {} kubectl --kubeconfig ${local.kubeconfig_path} patch pv {} -p '{"spec":{"persistentVolumeReclaimPolicy":"Delete"}}'
   helm del --purge ${local.cluster_name}
 fi
 EOS
