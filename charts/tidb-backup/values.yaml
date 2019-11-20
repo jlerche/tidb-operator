@@ -9,7 +9,7 @@ mode: backup # backup | restore | scheduled-restore
 # name is the backup name
 name: fullbackup-{{ date "200601021504" .Release.Time }}
 image:
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # https://github.com/pingcap/tidb-cloud-backup
   backup: pingcap/tidb-cloud-backup:20190610
 
