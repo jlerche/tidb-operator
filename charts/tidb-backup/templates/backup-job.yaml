@@ -22,6 +22,7 @@ spec:
 {{ toYaml .Values.extraLabels | indent 8 }}
     {{- end }}
     spec:
+      serviceAccount: dbaas-backup
       containers:
       - name: backup
         image: {{ .Values.image.backup }}
@@ -47,16 +48,6 @@ spec:
           value: /gcp/key.json
       {{- end }}
       {{- if or .Values.ceph .Values.s3 }}
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: {{ or .Values.ceph.secretName .Values.s3.secretName }}
-              key: access_key
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: {{ or .Values.ceph.secretName .Values.s3.secretName }}
-              key: secret_key
       {{- end }}
         - name: TIDB_USER
           valueFrom:
