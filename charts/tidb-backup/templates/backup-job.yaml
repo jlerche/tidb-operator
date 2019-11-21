@@ -35,20 +35,9 @@ spec:
         volumeMounts:
         - name: data
           mountPath: "/data"
-      {{- if .Values.gcp }}
-        - name: gcp-credentials
-          mountPath: "/gcp"
-          readOnly: true
-      {{- end }}
         env:
         - name: BACKUP_NAME
           value: {{ .Values.name | quote }}
-      {{- if .Values.gcp }}
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /gcp/key.json
-      {{- end }}
-      {{- if or .Values.ceph .Values.s3 }}
-      {{- end }}
         - name: TIDB_USER
           valueFrom:
             secretKeyRef:
@@ -64,9 +53,4 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: {{ .Values.name }}
-    {{- if .Values.gcp }}
-      - name: gcp-credentials
-        secret:
-          secretName: {{ .Values.gcp.secretName }}
-    {{- end }}
 {{- end }}
