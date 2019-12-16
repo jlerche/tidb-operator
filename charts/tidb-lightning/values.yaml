@@ -36,6 +36,10 @@ targetTidbCluster:
   # namespace is the target tidb cluster namespace, can be omitted if the lightning is deployed in the same namespace of the target tidb cluster
   namespace: ""
   user: root
+  # the secret where the tidb user/pwd are stored
+  secretName: ""
+  secretUserKey: user
+  secretPwdKey: password
 
 resources: {}
   # limits:

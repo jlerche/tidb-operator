@@ -69,6 +69,18 @@ spec:
         - name: FAIL_FAST
           value: "true"
         {{- end }}
+        {{- if .Values.targetTidbCluster.secretName }}
+        - name: TIDB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.targetTidbCluster.secretName }}
+              key: {{ .Values.targetTidbCluster.secretUserKey }}
+        - name: TIDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.targetTidbCluster.secretName }}
+              key: {{ .Values.targetTidbCluster.secretPwdKey }}
+        {{- end }}
         volumeMounts:
         - name: config
           mountPath: /etc/tidb-lightning

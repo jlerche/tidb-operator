@@ -22,7 +22,12 @@ fi
     --backend tidb \
 {{- end }}
     --server-mode=false \
+{{- if .Values.targetTidbCluster.secretName }}
+    --tidb-user=${TIDB_USER} \
+    --tidb-pwd=${TIDB_PASSWORD} \
+{{- else }}
     --tidb-user={{ .Values.targetTidbCluster.user | default "root" }} \
+{{- end }}
     --tidb-host={{ .Values.targetTidbCluster.name }}-tidb.{{ .Values.targetTidbCluster.namespace | default .Release.Namespace }} \
     --d=${data_dir} \
     --config=/etc/tidb-lightning/tidb-lightning.toml
