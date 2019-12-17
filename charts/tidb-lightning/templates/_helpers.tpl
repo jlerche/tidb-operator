@@ -3,7 +3,11 @@
 Expand the name of the chart.
 */}}
 {{- define "tidb-lightning.name" -}}
+{{- if .Values.jobName }}
+{{ .Values.jobName }}
+{{- else }}
 {{ .Release.Name }}-tidb-lightning
+{{- end }}
 {{- end -}}
 
 {{- define "helm-toolkit.utils.template" -}}
