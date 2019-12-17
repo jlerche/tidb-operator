@@ -1,7 +1,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  {{- if .Values.jobName }}
+  name: {{ .Values.jobName }}
+  {{- else}}
   name: {{ include "tidb-lightning.name" . }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "tidb-lightning.name" . }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
